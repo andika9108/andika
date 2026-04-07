@@ -62,61 +62,56 @@ $produk_query = mysqli_query($conn, "SELECT * FROM products ORDER BY id DESC");
         .logo { display: flex; align-items: center; gap: 15px; margin-bottom: 40px; }
         .menu { flex: 1; display: flex; flex-direction: column; gap: 8px; }
         .menu a { display: flex; align-items: center; gap: 15px; padding: 14px 18px; color: var(--text-muted); text-decoration: none; border-radius: var(--radius-md); transition: 0.3s; font-size: 14px; font-weight: 500; }
-        .menu a i { width: 20px; text-align: center; }
         .menu a.active, .menu a:hover { background: rgba(34, 197, 94, 0.1); color: var(--primary); }
         .logout-item { color: var(--danger) !important; }
         .logout-item:hover { background: rgba(239, 68, 68, 0.1) !important; }
 
+        /* TOPBAR & CLOCK */
         .main { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
-        .topbar { padding: 20px 40px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: rgba(6, 9, 15, 0.5); }
+        .topbar { padding: 15px 40px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: rgba(6, 9, 15, 0.5); position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px); }
         
+        .clock-box { 
+            background: rgba(255,255,255,0.05); 
+            padding: 8px 20px; 
+            border-radius: 50px; 
+            border: 1px solid var(--border-color); 
+            color: var(--primary); 
+            font-family: monospace; 
+            font-size: 16px; 
+            font-weight: bold; 
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.1);
+        }
+
+        .user-capsule { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.05); padding: 5px 15px 5px 5px; border-radius: 50px; border: 1px solid var(--border-color); }
+        .user-capsule img { width: 35px; height: 35px; border-radius: 50%; border: 2px solid var(--primary); object-fit: cover; }
+
+        /* CONTENT */
         .content { padding: 40px; }
-        .card { background: var(--bg-surface); padding: 30px; border-radius: 20px; border: 1px solid var(--border-color); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .card { background: var(--bg-surface); padding: 30px; border-radius: 20px; border: 1px solid var(--border-color); }
 
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th { text-align: left; padding: 15px; color: var(--text-muted); font-size: 11px; border-bottom: 1px solid var(--border-color); text-transform: uppercase; letter-spacing: 1px; }
+        th { text-align: left; padding: 15px; color: var(--text-muted); font-size: 11px; border-bottom: 1px solid var(--border-color); text-transform: uppercase; }
         td { padding: 18px 15px; border-bottom: 1px solid var(--border-color); font-size: 14px; }
         tr:hover td { background: rgba(255,255,255,0.02); }
 
         .btn-add { background: var(--primary); color: #000; padding: 12px 20px; border-radius: 10px; border: none; font-weight: 700; cursor: pointer; transition: 0.3s; }
-        .btn-add:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(34, 197, 94, 0.4); }
-
+        
         /* MODAL */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 1000; display: none; align-items: center; justify-content: center; }
         .modal-overlay.show { display: flex; }
-        .modal-box { background: #0A0F1A; padding: 35px; border-radius: 24px; width: 480px; border: 1px solid var(--border-color); box-shadow: 0 20px 50px rgba(0,0,0,0.6); }
+        .modal-box { background: #0A0F1A; padding: 35px; border-radius: 24px; width: 480px; border: 1px solid var(--border-color); }
         .modal-box h3 { color: var(--primary); margin-bottom: 25px; font-weight: 700; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
-        
-        .form-label { display: block; font-size: 12px; color: var(--primary); font-weight: 700; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
-        
-        /* FIX DROPDOWN INVISIBLE */
-        .form-input, .form-select { 
-            width: 100%; padding: 14px; background: rgba(255,255,255,0.03); 
-            border: 1px solid var(--border-color); border-radius: 12px; 
-            color: #fff; 
-            margin-bottom: 20px; outline: none; transition: 0.3s;
-            font-size: 15px;
-        }
-        /* Ini supaya tulisan di dalam option kelihatan bos! */
-        .form-select option {
-            background-color: #0A0F1A; /* Samain sama warna modal box */
-            color: #fff;
-        }
-        .form-input:focus, .form-select:focus { border-color: var(--primary); background: rgba(34, 197, 94, 0.05); }
-
-        .btn-save { width: 100%; padding: 16px; background: var(--primary); border: none; border-radius: 12px; font-weight: 800; font-size: 16px; cursor: pointer; color: #000; transition: 0.3s; }
-        .btn-save:hover { transform: scale(1.02); box-shadow: 0 0 20px rgba(34, 197, 94, 0.3); }
-
-        .user-capsule { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.05); padding: 6px 15px; border-radius: 50px; border: 1px solid var(--border-color); }
+        .form-label { display: block; font-size: 12px; color: var(--primary); font-weight: 700; margin-bottom: 8px; text-transform: uppercase; }
+        .form-input, .form-select { width: 100%; padding: 14px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 12px; color: #fff; margin-bottom: 20px; outline: none; }
+        .form-select option { background-color: #0A0F1A; color: #fff; }
+        .btn-save { width: 100%; padding: 16px; background: var(--primary); border: none; border-radius: 12px; font-weight: 800; cursor: pointer; color: #000; }
     </style>
 </head>
 <body>
 
     <aside class="sidebar">
         <div class="logo">
-            <div style="background:var(--primary); color:#000; width:35px; height:35px; border-radius:8px; display:flex; align-items:center; justify-content:center;">
-                <i class="fas fa-bolt"></i>
-            </div> 
+            <div style="background:var(--primary); color:#000; width:35px; height:35px; border-radius:8px; display:flex; align-items:center; justify-content:center;"><i class="fas fa-bolt"></i></div> 
             <h2 style="font-size:22px; font-weight:800;">Suzuka</h2>
         </div>
         <nav class="menu">
@@ -133,8 +128,12 @@ $produk_query = mysqli_query($conn, "SELECT * FROM products ORDER BY id DESC");
                 <i class="fas fa-warehouse" style="color:var(--primary); font-size:20px;"></i>
                 <h3 style="font-weight:700;">Gudang Persediaan</h3>
             </div>
+            
+            <!-- JAM REAL-TIME SINKRON -->
+            <div class="clock-box" id="realtimeClock">00:00:00</div>
+
             <div class="user-capsule">
-                <i class="fas fa-user-circle" style="color:var(--primary);"></i>
+                <img src="https://ui-avatars.com/api/?name=<?php echo urlencode($username); ?>&background=22C55E&color=fff&bold=true" alt="User">
                 <span style="font-weight:600; font-size:13px;"><?php echo $username; ?></span>
             </div>
         </header>
@@ -144,11 +143,9 @@ $produk_query = mysqli_query($conn, "SELECT * FROM products ORDER BY id DESC");
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <div>
                         <h4 style="font-size:18px;">Master Data Item</h4>
-                        <p style="font-size:12px; color:var(--text-muted);">Manage your game diamonds & currency stock</p>
+                        <p style="font-size:12px; color:var(--text-muted);">Manage your game diamonds & stock</p>
                     </div>
-                    <button class="btn-add" onclick="openModal('add')">
-                        <i class="fas fa-plus"></i> Tambah Item Baru
-                    </button>
+                    <button class="btn-add" onclick="openModal('add')"><i class="fas fa-plus"></i> Tambah Item Baru</button>
                 </div>
 
                 <table>
@@ -178,12 +175,12 @@ $produk_query = mysqli_query($conn, "SELECT * FROM products ORDER BY id DESC");
         </div>
     </main>
 
+    <!-- MODAL -->
     <div class="modal-overlay" id="crudModal">
         <div class="modal-box">
             <h3 id="modalTitle">Tambah Produk Baru</h3>
             <form action="" method="POST">
                 <input type="hidden" name="id" id="formId">
-                
                 <label class="form-label">1. Kategori Game</label>
                 <select name="game_select" id="gameSelect" class="form-select">
                     <option value="Genshin Impact">Genshin Impact</option>
@@ -195,30 +192,29 @@ $produk_query = mysqli_query($conn, "SELECT * FROM products ORDER BY id DESC");
                     <option value="Valorant">Valorant</option>
                     <option value="Honor of Kings">Honor of Kings</option>
                 </select>
-
                 <label class="form-label">2. Nominal Produk</label>
-                <input type="text" name="nominal_produk" id="formNominal" class="form-input" placeholder="Misal: 50 Diamonds / 60 UC" required>
-
+                <input type="text" name="nominal_produk" id="formNominal" class="form-input" placeholder="Misal: 50 Diamonds" required>
                 <div style="display:flex; gap:20px;">
-                    <div style="flex:1;">
-                        <label class="form-label">Harga (IDR)</label>
-                        <input type="number" name="harga" id="formHarga" class="form-input" placeholder="0" required>
-                    </div>
-                    <div style="flex:1;">
-                        <label class="form-label">Stok Unit</label>
-                        <input type="number" name="stok" id="formStok" class="form-input" placeholder="0" required>
-                    </div>
+                    <div style="flex:1;"><label class="form-label">Harga (IDR)</label><input type="number" name="harga" id="formHarga" class="form-input" required></div>
+                    <div style="flex:1;"><label class="form-label">Stok Unit</label><input type="number" name="stok" id="formStok" class="form-input" required></div>
                 </div>
-
                 <button type="submit" id="btnSubmit" name="tambah_barang" class="btn-save">Simpan Data Produk</button>
-                <button type="button" onclick="closeModal()" style="width:100%; background:none; color:var(--text-muted); border:none; margin-top:15px; cursor:pointer; font-weight:600;">Kembali / Batal</button>
+                <button type="button" onclick="closeModal()" style="width:100%; background:none; color:var(--text-muted); border:none; margin-top:15px; cursor:pointer;">Batal</button>
             </form>
         </div>
     </div>
 
     <script>
+        // CLOCK LOGIC
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('realtimeClock').innerText = now.toLocaleTimeString('id-ID');
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // MODAL LOGIC
         const modal = document.getElementById('crudModal');
-        
         function openModal(mode, id='', nama='', stok='', harga='') {
             modal.classList.add('show');
             if(mode === 'edit') {
@@ -227,14 +223,11 @@ $produk_query = mysqli_query($conn, "SELECT * FROM products ORDER BY id DESC");
                 document.getElementById('formId').value = id;
                 document.getElementById('formHarga').value = harga;
                 document.getElementById('formStok').value = stok;
-                
                 let parts = nama.split(' - ');
                 if(parts.length > 1) {
                     document.getElementById('gameSelect').value = parts[0];
                     document.getElementById('formNominal').value = parts[1];
-                } else {
-                    document.getElementById('formNominal').value = nama;
-                }
+                } else { document.getElementById('formNominal').value = nama; }
             } else {
                 document.getElementById('modalTitle').innerText = "Tambah Produk Baru";
                 document.getElementById('btnSubmit').name = "tambah_barang";
@@ -243,12 +236,8 @@ $produk_query = mysqli_query($conn, "SELECT * FROM products ORDER BY id DESC");
                 document.getElementById('formStok').value = '';
             }
         }
-
         function closeModal() { modal.classList.remove('show'); }
-        
-        window.onclick = function(event) {
-            if (event.target == modal) closeModal();
-        }
+        window.onclick = function(event) { if (event.target == modal) closeModal(); }
     </script>
 </body>
 </html>
