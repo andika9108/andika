@@ -11,16 +11,11 @@ $username = $_SESSION['username'];
 // ==========================================
 // 1. KONEKSI DATABASE
 // ==========================================
-$host = "localhost";
-$db_user = "root";
-$db_pass = "";
-$db_name = "umamusume_db";
-
-$conn = mysqli_connect($host, $db_user, $db_pass, $db_name);
+$conn = mysqli_connect("localhost", "root", "", "umamusume_db");
 if (!$conn) { die("Koneksi gagal!"); }
 
 // ==========================================
-// 2. LOGIKA PROSES BELI (SAVE KE TRANSAKSI)
+// 2. LOGIKA PROSES BELI
 // ==========================================
 if (isset($_POST['beli_barang'])) {
     $id_produk = (int)$_POST['id_produk'];
@@ -36,7 +31,6 @@ if (isset($_POST['beli_barang'])) {
             $nama_produk = $data_produk['nama_produk'];
 
             mysqli_query($conn, "UPDATE products SET stok='$sisa_stok' WHERE id='$id_produk'");
-            // Simpan data customer & WA ke transaksi
             mysqli_query($conn, "INSERT INTO transactions (pembeli, customer_name, customer_wa, nama_produk, jumlah, total_harga) 
                          VALUES ('$username', '$cust_name', '$cust_wa', '$nama_produk', '$jumlah_beli', '$total_harga')");
 
@@ -55,28 +49,38 @@ if (isset($_SESSION['pesan'])) {
     unset($_SESSION['pesan']); 
 }
 
-// Ambil data produk & 5 transaksi terakhir buat log samping
+// Ambil data produk & 5 transaksi terakhir
 $produk_query = mysqli_query($conn, "SELECT * FROM products ORDER BY harga ASC");
 $recent_query = mysqli_query($conn, "SELECT * FROM transactions ORDER BY tanggal DESC LIMIT 5");
 
-// Info Game (Gunakan URL Gambar Lo Sendiri Jika Perlu)
+// Info Game (Lengkap sesuai Inventory)
 $game_info = [
-    'genshin' => ['nama' => 'Genshin Impact', 'img' => 'https://play-lh.googleusercontent.com/iP2i_f23Z6I-5hoL2okPS4SxOGhj0q61Iyb0Y1m4xdTsbnaCmrjs7xKRnL6o5R4h-Yg'],
-    'hsr'     => ['nama' => 'Honkai Star Rail', 'img' => 'https://stardb.gg/images/icons/star-rail-icon.webp'],
-    'uma'     => ['nama' => 'Uma Musume', 'img' => 'https://tse2.mm.bing.net/th/id/OIP.M4fsR_34nzK9w5KOWzn8QAHaHa?pid=Api&P=0&h=220'],
-    'mlbb'    => ['nama' => 'Mobile Legends', 'img' => 'https://www.gamersoft.net/wp-content/uploads/2023/05/mobile-legends-bang-bang.webp'],
-    'ff'      => ['nama' => 'Free Fire', 'img' => 'https://tse2.mm.bing.net/th/id/OIP.gDIuTjSv6lO19IS5SdhTAAHaHa?pid=Api&P=0&h=220']
+    'genshin'  => ['nama' => 'Genshin Impact', 'img' => 'https://play-lh.googleusercontent.com/iP2i_f23Z6I-5hoL2okPS4SxOGhj0q61Iyb0Y1m4xdTsbnaCmrjs7xKRnL6o5R4h-Yg'],
+    'hsr'      => ['nama' => 'Honkai Star Rail', 'img' => 'https://stardb.gg/images/icons/star-rail-icon.webp'],
+    'uma'      => ['nama' => 'Uma Musume', 'img' => 'https://tse2.mm.bing.net/th/id/OIP.M4fsR_34nzK9w5KOWzn8QAHaHa?pid=Api&P=0&h=220'],
+    'mlbb'     => ['nama' => 'Mobile Legends', 'img' => 'https://www.gamersoft.net/wp-content/uploads/2023/05/mobile-legends-bang-bang.webp'],
+    'hok'      => ['nama' => 'Honor of Kings', 'img' => 'https://play-lh.googleusercontent.com/Xbe63-e45mI5V6Uf4F8R7vW8S7tN_f7F-V8k8G_M9_A_r-f0_L-K_v_p_K9_P_L_Y_A=w240-h480-rw'],
+    'ff'       => ['nama' => 'Free Fire', 'img' => 'https://tse2.mm.bing.net/th/id/OIP.gDIuTjSv6lO19IS5SdhTAAHaHa?pid=Api&P=0&h=220'],
+    'pubg'     => ['nama' => 'PUBG Mobile', 'img' => 'https://play-lh.googleusercontent.com/JRd0v_v_98555-p_A_V9v_S_v_K-V9v_S_v_v-V9v_S_v_v-V9v_S_v_v-V9v_S_v_v=w240-h480-rw'],
+    'val'      => ['nama' => 'Valorant', 'img' => 'https://tse1.mm.bing.net/th/id/OIP.9YvE8zD8f-v_I9uO6f7m8QHaHa?pid=Api&P=0&h=220']
 ];
 
+// GROUPING LOGIC (FIX HOK & FF)
 $grouped_products = [];
 while($r = mysqli_fetch_assoc($produk_query)) {
     $n = strtolower($r['nama_produk']);
     $cat = 'other';
+    
     if(strpos($n, 'genshin') !== false) $cat = 'genshin';
-    elseif(strpos($n, 'hsr') !== false) $cat = 'hsr';
+    elseif(strpos($n, 'honkai') !== false || strpos($n, 'hsr') !== false || strpos($n, 'star rail') !== false) $cat = 'hsr';
     elseif(strpos($n, 'uma') !== false) $cat = 'uma';
-    elseif(strpos($n, 'mlbb') !== false) $cat = 'mlbb';
-    elseif(strpos($n, 'ff') !== false) $cat = 'ff';
+    elseif(strpos($n, 'mobile legends') !== false || strpos($n, 'mlbb') !== false) $cat = 'mlbb';
+    // CEK HOK DULUAN BIAR HURUF 'F'-NYA GAK KEMAKAN FF
+    elseif(strpos($n, 'honor of kings') !== false || strpos($n, 'hok') !== false) $cat = 'hok';
+    elseif(strpos($n, 'free fire') !== false || strpos($n, 'ff') !== false) $cat = 'ff';
+    elseif(strpos($n, 'pubg') !== false) $cat = 'pubg';
+    elseif(strpos($n, 'valorant') !== false || strpos($n, 'val') !== false) $cat = 'val';
+    
     $grouped_products[$cat][] = $r;
 }
 ?>
@@ -98,7 +102,7 @@ while($r = mysqli_fetch_assoc($produk_query)) {
         /* Sidebar */
         .sidebar { position: fixed; left: -320px; top: 0; bottom: 0; width: 300px; background: rgba(10, 15, 26, 0.9); backdrop-filter: var(--blur); border-right: 1px solid var(--border-color); padding: 30px 20px; display: flex; flex-direction: column; z-index: 1000; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .sidebar.show { left: 0; }
-        .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.7); z-index: 999; display: none; }
+        .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 999; display: none; }
         .sidebar-overlay.show { display: block; }
 
         .logo { display: flex; align-items: center; gap: 15px; margin-bottom: 35px; }
@@ -109,40 +113,44 @@ while($r = mysqli_fetch_assoc($produk_query)) {
         .topbar { position: sticky; top: 0; z-index: 5; background: rgba(6, 9, 15, 0.85); backdrop-filter: var(--blur); padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
         
         .btn-menu { background: rgba(255,255,255,0.04); border: 1px solid var(--border-color); color: var(--text-main); font-size: 20px; width: 45px; height: 45px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-
         .clock-box { background: rgba(255,255,255,0.05); padding: 8px 20px; border-radius: 50px; border: 1px solid var(--border-color); color: var(--primary); font-family: monospace; font-size: 16px; font-weight: bold; }
+
+        .user-profile { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.05); padding: 5px 15px 5px 5px; border-radius: 50px; border: 1px solid var(--border-color); }
+        .user-profile img { width: 35px; height: 35px; border-radius: 50%; border: 2px solid var(--primary); }
 
         .content { padding: 40px; max-width: 1400px; margin: 0 auto; width: 100%; }
         .grid-layout { display: grid; grid-template-columns: 1fr 380px; gap: 24px; }
         .box { background: var(--bg-surface); padding: 30px; border-radius: var(--radius-lg); border: 1px solid var(--border-color); }
 
         /* Game Tabs */
-        .game-tabs { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 20px; }
-        .game-tab { min-width: 100px; padding: 12px; background: rgba(0,0,0,0.4); border: 2px solid var(--border-color); border-radius: 15px; cursor: pointer; text-align: center; transition: 0.3s; }
-        .game-tab.active { border-color: var(--primary); background: rgba(34, 197, 94, 0.1); }
-        .game-tab img { width: 40px; border-radius: 8px; margin-bottom: 5px; }
+        .game-tabs { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 25px; }
+        .game-tab { min-width: 110px; padding: 15px 10px; background: rgba(0,0,0,0.4); border: 2px solid var(--border-color); border-radius: 20px; cursor: pointer; text-align: center; transition: 0.3s; flex-shrink: 0; }
+        .game-tab.active { border-color: var(--primary); background: rgba(34, 197, 94, 0.1); transform: translateY(-5px); }
+        .game-tab img { width: 45px; height: 45px; border-radius: 12px; margin-bottom: 8px; object-fit: cover; }
         
         /* Items Grid */
         .item-grid { display: none; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
         .item-grid.show { display: grid; }
-        .item-card { border: 2px solid var(--border-color); padding: 15px; border-radius: 12px; cursor: pointer; text-align: center; transition: 0.3s; }
+        .item-card { border: 2px solid var(--border-color); padding: 18px; border-radius: 15px; cursor: pointer; text-align: center; transition: 0.3s; position: relative; }
         .item-card input { display: none; }
-        .item-card:has(input:checked) { border-color: var(--primary); background: rgba(34, 197, 94, 0.1); transform: translateY(-3px); }
+        .item-card:hover { border-color: rgba(34, 197, 94, 0.5); }
+        .item-card:has(input:checked) { border-color: var(--primary); background: rgba(34, 197, 94, 0.12); box-shadow: 0 0 20px rgba(34, 197, 94, 0.15); transform: scale(1.02); }
 
         /* Inputs */
         .form-group { margin-top: 20px; }
-        .form-group label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; font-weight: bold; }
-        .form-group input { width: 100%; padding: 12px; background: #0A0F1A; border: 1px solid var(--border-color); color: white; border-radius: 10px; outline: none; transition: 0.3s; }
-        .form-group input:focus { border-color: var(--primary); }
+        .form-group label { display: block; font-size: 11px; color: var(--primary); margin-bottom: 8px; text-transform: uppercase; font-weight: 800; letter-spacing: 1px; }
+        .form-group input { width: 100%; padding: 14px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); color: white; border-radius: 12px; outline: none; transition: 0.3s; }
+        .form-group input:focus { border-color: var(--primary); background: rgba(255,255,255,0.05); }
 
-        .btn-buy { width: 100%; padding: 15px; background: #334155; color: #94A3B8; border: none; border-radius: 12px; font-weight: bold; margin-top: 25px; cursor: not-allowed; transition: 0.3s; font-size: 16px; }
-        .btn-buy.active { background: var(--primary); color: #000; cursor: pointer; }
+        .btn-buy { width: 100%; padding: 18px; background: #1E293B; color: #475569; border: none; border-radius: 15px; font-weight: 800; margin-top: 30px; cursor: not-allowed; transition: 0.4s; font-size: 16px; text-transform: uppercase; }
+        .btn-buy.active { background: var(--primary); color: #000; cursor: pointer; box-shadow: 0 10px 25px var(--primary-glow); }
 
-        /* Recent Activity Log */
-        .activity-card { padding: 15px; background: rgba(255,255,255,0.03); border-radius: 12px; margin-bottom: 12px; border-left: 3px solid var(--primary); }
+        /* Recent Activity */
+        .activity-card { padding: 18px; background: rgba(255,255,255,0.02); border-radius: 15px; margin-bottom: 12px; border: 1px solid var(--border-color); border-left: 4px solid var(--primary); transition: 0.3s; }
+        .activity-card:hover { transform: translateX(5px); background: rgba(255,255,255,0.04); }
 
         .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; }
-        .toast { display: flex; align-items: center; gap: 15px; padding: 15px 25px; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 10px; animation: slide 0.5s forwards; }
+        .toast { display: flex; align-items: center; gap: 15px; padding: 15px 25px; background: #0A0F1A; border: 1px solid var(--primary); border-radius: 12px; color: white; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
     </style>
 </head>
 <body>
@@ -152,12 +160,15 @@ while($r = mysqli_fetch_assoc($produk_query)) {
 
     <!-- SIDEBAR -->
     <aside class="sidebar" id="sidebar">
-        <div class="logo"><div style="background:var(--primary); color:#000; padding:10px; border-radius:10px;"><i class="fas fa-bolt"></i></div> <h2>Suzuka</h2></div>
+        <div class="logo">
+            <div style="background:var(--primary); color:#000; width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center;"><i class="fas fa-bolt"></i></div> 
+            <h2 style="font-weight:800;">Suzuka</h2>
+        </div>
         <nav class="menu">
             <a href="dashboard.php" class="active"><i class="fas fa-chart-pie"></i> Dashboard</a>
             <a href="inventory.php"><i class="fas fa-box-open"></i> Inventory</a>
             <a href="transactions.php"><i class="fas fa-receipt"></i> Transactions</a>
-            <a href="index.php" style="margin-top:auto; color:var(--danger)"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            <a href="index.php" style="margin-top:auto; color:var(--danger)" onclick="return confirm('Logout sekarang?')"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </nav>
     </aside>
 
@@ -165,82 +176,90 @@ while($r = mysqli_fetch_assoc($produk_query)) {
         <header class="topbar">
             <div style="display:flex; align-items:center; gap:20px;">
                 <button class="btn-menu" id="menuToggle"><i class="fas fa-bars"></i></button>
-                <div><h3>Top-Up Kasir</h3><p style="font-size:12px; color:var(--text-muted);">Selamat bertugas, <?php echo $username; ?>!</p></div>
+                <div><h3 style="font-weight:700;">Top-Up Kasir</h3><p style="font-size:12px; color:var(--text-muted);">Trainer: <?php echo $username; ?></p></div>
             </div>
             
-            <!-- JAM REAL-TIME -->
             <div class="clock-box" id="realtimeClock">00:00:00</div>
 
             <div class="user-profile">
-                <img src="https://ui-avatars.com/api/?name=<?php echo $username; ?>&background=22C55E&color=fff" style="width:35px; border-radius:50%;">
+                <img src="https://ui-avatars.com/api/?name=<?php echo urlencode($username); ?>&background=22C55E&color=fff&bold=true">
+                <span style="font-size:13px; font-weight:600;"><?php echo $username; ?></span>
             </div>
         </header>
 
         <div class="content">
             <div class="grid-layout">
                 
-                <!-- KOLOM KIRI: FORM JUALAN -->
+                <!-- KOLOM KIRI -->
                 <div class="box">
                     <form action="" method="POST">
-                        <label style="font-weight:600; color:var(--primary);">1. PILIH GAME</label>
+                        <label class="form-group" style="font-weight:800; color:var(--primary); display:block; margin-bottom:15px;">1. PILIH KATEGORI GAME</label>
                         <div class="game-tabs">
                             <?php foreach($game_info as $kode => $info): ?>
                                 <div class="game-tab" id="tab-<?php echo $kode; ?>" onclick="selectGame('<?php echo $kode; ?>')">
-                                    <img src="<?php echo $info['img']; ?>"><br>
-                                    <span style="font-size:11px;"><?php echo $info['nama']; ?></span>
+                                    <img src="<?php echo $info['img']; ?>">
+                                    <div style="font-size:10px; font-weight:700; text-transform:uppercase;"><?php echo $info['nama']; ?></div>
                                 </div>
                             <?php endforeach; ?>
                         </div>
 
-                        <label style="font-weight:600; color:var(--primary);">2. PILIH NOMINAL</label>
+                        <label class="form-group" style="font-weight:800; color:var(--primary); display:block; margin-bottom:15px;">2. PILIH NOMINAL ITEM</label>
                         <?php foreach($game_info as $kode => $info): ?>
                             <div class="item-grid" id="grid-<?php echo $kode; ?>">
                                 <?php if(isset($grouped_products[$kode])): foreach($grouped_products[$kode] as $item): ?>
                                     <label class="item-card">
                                         <input type="radio" name="id_produk" value="<?php echo $item['id']; ?>" onchange="activateBtn()">
-                                        <div style="font-size:13px; font-weight:600;"><?php echo htmlspecialchars($item['nama_produk']); ?></div>
-                                        <div style="color:var(--primary); font-size:14px; font-weight:bold; margin-top:5px;">Rp <?php echo number_format($item['harga'],0,',','.'); ?></div>
+                                        <div style="font-size:13px; font-weight:700; color:#fff;"><?php echo htmlspecialchars($item['nama_produk']); ?></div>
+                                        <div style="color:var(--primary); font-size:14px; font-weight:800; margin-top:8px;">Rp <?php echo number_format($item['harga'],0,',','.'); ?></div>
+                                        <div style="font-size:10px; color:var(--text-muted); margin-top:5px;">Stok: <?php echo $item['stok']; ?></div>
                                     </label>
-                                <?php endforeach; endif; ?>
+                                <?php endforeach; else: ?>
+                                    <p style="color:var(--text-muted); font-size:13px; grid-column: 1/-1; text-align:center; padding:20px;">Belum ada produk untuk game ini.</p>
+                                <?php endif; ?>
                             </div>
                         <?php endforeach; ?>
 
-                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-top:20px;">
-                            <div class="form-group">
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-top:30px; border-top: 1px solid var(--border-color); padding-top:25px;">
+                            <div class="form-group" style="margin-top:0;">
                                 <label>Nama Customer</label>
-                                <input type="text" name="cust_name" placeholder="Nama Pelanggan..." required>
+                                <input type="text" name="cust_name" placeholder="Contoh: Dika Ganz" required>
                             </div>
-                            <div class="form-group">
-                                <label>No. WhatsApp (Opsional)</label>
-                                <input type="text" name="cust_wa" placeholder="0812xxxx">
+                            <div class="form-group" style="margin-top:0;">
+                                <label>WhatsApp Pelanggan</label>
+                                <input type="text" name="cust_wa" placeholder="0812xxxxxxxx">
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label>Jumlah Beli</label>
-                            <input type="number" name="jumlah" value="1" min="1">
+                            <label>Jumlah Pembelian</label>
+                            <input type="number" name="jumlah" value="1" min="1" style="width:100px;">
                         </div>
 
-                        <button type="submit" name="beli_barang" class="btn-buy" id="btnBuy" disabled>Pilih Item Dulu</button>
+                        <button type="submit" name="beli_barang" class="btn-buy" id="btnBuy" disabled>Pilih Produk Dahulu</button>
                     </form>
                 </div>
 
-                <!-- KOLOM KANAN: LOG AKTIVITAS -->
+                <!-- KOLOM KANAN -->
                 <div class="box">
-                    <h4 style="margin-bottom:20px; color:var(--primary); display:flex; align-items:center; gap:10px;">
-                        <i class="fas fa-history"></i> Recent Sales
+                    <h4 style="margin-bottom:25px; color:var(--primary); display:flex; align-items:center; gap:12px; font-weight:700;">
+                        <i class="fas fa-history"></i> SALES TERAKHIR
                     </h4>
-                    <?php while($tx = mysqli_fetch_assoc($recent_query)): ?>
-                        <div class="activity-card">
-                            <div style="font-size:13px; font-weight:bold;"><?php echo htmlspecialchars($tx['customer_name']); ?></div>
-                            <div style="font-size:11px; color:var(--text-muted);"><?php echo $tx['nama_produk']; ?></div>
-                            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
-                                <div style="font-size:12px; color:var(--primary); font-weight:bold;">Rp <?php echo number_format($tx['total_harga'],0,',','.'); ?></div>
-                                <div style="font-size:10px; color:var(--text-muted);"><?php echo date('H:i', strtotime($tx['tanggal'])); ?></div>
+                    <?php if(mysqli_num_rows($recent_query) > 0): ?>
+                        <?php while($tx = mysqli_fetch_assoc($recent_query)): ?>
+                            <div class="activity-card">
+                                <div style="display:flex; justify-content:space-between;">
+                                    <div style="font-size:13px; font-weight:700; color:#fff;"><?php echo htmlspecialchars($tx['customer_name']); ?></div>
+                                    <div style="font-size:10px; color:var(--text-muted);"><?php echo date('H:i', strtotime($tx['tanggal'])); ?></div>
+                                </div>
+                                <div style="font-size:11px; color:var(--text-muted); margin-top:3px;"><?php echo $tx['nama_produk']; ?> (x<?php echo $tx['jumlah']; ?>)</div>
+                                <div style="font-size:13px; color:var(--primary); font-weight:800; margin-top:8px;">Rp <?php echo number_format($tx['total_harga'],0,',','.'); ?></div>
                             </div>
-                        </div>
-                    <?php endwhile; ?>
-                    <a href="transactions.php" style="display:block; text-align:center; color:var(--text-muted); font-size:12px; text-decoration:none; margin-top:10px;">Lihat Semua Transaksi &rarr;</a>
+                        <?php endwhile; ?>
+                    <?php else: ?>
+                        <p style="color:var(--text-muted); text-align:center; font-size:13px; padding:20px;">Belum ada penjualan hari ini.</p>
+                    <?php endif; ?>
+                    
+                    <a href="transactions.php" style="display:block; text-align:center; color:var(--primary); font-size:12px; font-weight:600; text-decoration:none; margin-top:15px; padding:10px; background:rgba(34, 197, 94, 0.05); border-radius:10px;">Lihat Semua Laporan &rarr;</a>
                 </div>
 
             </div>
@@ -248,7 +267,7 @@ while($r = mysqli_fetch_assoc($produk_query)) {
     </main>
 
     <script>
-        // SCRIPT SIDEBAR (STRIP TIGA)
+        // SIDEBAR CONTROL
         const btnMenu = document.getElementById('menuToggle');
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('sidebarOverlay');
@@ -266,28 +285,35 @@ while($r = mysqli_fetch_assoc($produk_query)) {
         // JAM REAL-TIME
         function updateClock() {
             const now = new Date();
-            document.getElementById('realtimeClock').innerText = now.toLocaleTimeString('id-ID');
+            const timeStr = now.toLocaleTimeString('id-ID', { hour12: false });
+            document.getElementById('realtimeClock').innerText = timeStr;
         }
         setInterval(updateClock, 1000);
         updateClock();
 
-        // SELECT GAME & TABS
+        // TAB SYSTEM
         function selectGame(kode) {
             document.querySelectorAll('.game-tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.item-grid').forEach(g => g.classList.remove('show'));
-            document.getElementById('tab-'+kode).classList.add('active');
-            document.getElementById('grid-'+kode).classList.add('show');
+            
+            const selectedTab = document.getElementById('tab-'+kode);
+            const selectedGrid = document.getElementById('grid-'+kode);
+            
+            if(selectedTab && selectedGrid) {
+                selectedTab.classList.add('active');
+                selectedGrid.classList.add('show');
+            }
         }
 
-        // AKTIFKAN TOMBOL BELI
+        // BTN ACTIVATE
         function activateBtn() {
             const btn = document.getElementById('btnBuy');
             btn.disabled = false;
             btn.classList.add('active');
-            btn.innerText = "🚀 Proses Pembelian";
+            btn.innerText = "🚀 PROSES PESANAN SEKARANG";
         }
 
-        // Set default game pas buka
+        // Default Load
         window.onload = () => selectGame('genshin');
     </script>
 </body>
