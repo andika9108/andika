@@ -8,9 +8,8 @@ if (!isset($_SESSION['username'])) {
 }
 $username = $_SESSION['username'];
 
-// 2. KONEKSI DATABASE
-$conn = mysqli_connect("localhost", "root", "", "umamusume_db");
-if (!$conn) { die("Koneksi gagal!"); }
+// 2. KONEKSI DATABASE (Sekarang manggil config.php biar satu pintu)
+require 'config.php'; 
 
 // 3. LOGIKA HAPUS & BERSIHKAN
 if (isset($_GET['hapus'])) {
@@ -95,7 +94,6 @@ $transaksi_query = mysqli_query($conn, "SELECT * FROM transactions ORDER BY tang
 
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-    <!-- SIDEBAR -->
     <aside class="sidebar" id="sidebar">
         <div class="logo" style="display:flex; align-items:center; gap:12px; margin-bottom: 30px;">
             <div style="background:var(--primary); color:#000; padding:10px; border-radius:12px;"><i class="fas fa-bolt"></i></div>
@@ -110,7 +108,6 @@ $transaksi_query = mysqli_query($conn, "SELECT * FROM transactions ORDER BY tang
     </aside>
 
     <main class="main">
-        <!-- TOPBAR PERSIS DASHBOARD -->
         <header class="topbar">
             <div style="display: flex; align-items: center; gap: 15px;">
                 <button class="btn-menu" id="menuToggle"><i class="fas fa-bars"></i></button>
