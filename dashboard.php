@@ -81,9 +81,9 @@ $produk_query = mysqli_query($conn, "SELECT * FROM products ORDER BY harga ASC")
 
 // ARRAY DATA GAME
 $game_info = [
-    'genshin'  => ['nama' => 'Genshin Impact', 'img' => 'https://play-lh.googleusercontent.com/iP2i_f23Z6I-5hoL2okPS4SxOGhj0q61Iyb0Y1m4xdTsbnaCmrjs7xKRnL6o5R4h-Yg', 'dev' => 'HoYoverse'],
+    'genshin'  => ['nama' => 'Genshin Impact', 'img' => 'https://tse4.mm.bing.net/th/id/OIP.M4zO4XAX1j5De5qK5rUF1gHaHa?pid=Api&h=220&P=0', 'dev' => 'HoYoverse'],
     'hsr'      => ['nama' => 'Honkai Star Rail', 'img' => 'https://stardb.gg/images/icons/star-rail-icon.webp', 'dev' => 'HoYoverse'],
-    'uma'      => ['nama' => 'Uma Musume', 'img' => 'https://tse2.mm.bing.net/th/id/OIP.nM0u8c8-lJt5NYR-VbUIoAHaHa?pid=Api&P=0&h=220', 'dev' => 'Cygames'],
+    'uma'      => ['nama' => 'Uma Musume', 'img' => 'https://tse2.mm.bing.net/th/id/OIP.M4fsR_34nzK9w5KOWzn8QAHaHa?pid=Api&h=220&P=0', 'dev' => 'Cygames'],
     'mlbb'     => ['nama' => 'Mobile Legends', 'img' => 'https://www.gamersoft.net/wp-content/uploads/2023/05/mobile-legends-bang-bang.webp', 'dev' => 'Moonton'],
     'hok'      => ['nama' => 'Honor of Kings', 'img' => 'https://tse2.mm.bing.net/th/id/OIP.nM0u8c8-lJt5NYR-VbUIoAHaHa?pid=Api&P=0&h=220', 'dev' => 'Level Infinite'],
     'ff'       => ['nama' => 'Free Fire', 'img' => 'https://tse2.mm.bing.net/th/id/OIP.gDIuTjSv6lO19IS5SdhTAAHaHa?pid=Api&P=0&h=220', 'dev' => 'Garena'],
