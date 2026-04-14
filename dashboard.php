@@ -9,8 +9,7 @@ if (!isset($_SESSION['username'])) {
 $username = $_SESSION['username'];
 
 // 1. KONEKSI DATABASE
-$conn = mysqli_connect("localhost", "root", "", "umamusume_db");
-if (!$conn) { die("Koneksi gagal!"); }
+require 'config.php'; 
 
 // ================================================================
 // 2. MAGIC TRICK: AUTO-INSERT SALDO E-WALLET KE DATABASE JIKA KOSONG
