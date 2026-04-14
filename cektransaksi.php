@@ -1,7 +1,6 @@
 <?php
 // 1. KONEKSI DATABASE
-$conn = mysqli_connect("localhost", "root", "", "umamusume_db");
-if (!$conn) { die("Koneksi gagal!"); }
+require 'config.php'; 
 
 // 2. AMBIL DATA TRANSAKSI (Definisikan variabel $query di sini agar dikenal di bawah)
 $query = mysqli_query($conn, "SELECT * FROM transactions ORDER BY tanggal DESC LIMIT 20");
