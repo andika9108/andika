@@ -1,13 +1,12 @@
 <?php
-session_start();
+$host = "localhost";
+$user = "root";
+$pass = "";
+$db   = "umamusume_db";
 
-// Panggil file config.php biar langsung nyambung ke database
-require 'config.php'; 
+$conn = mysqli_connect($host, $user, $pass, $db);
 
-$error_message = "";
-
-// Proses Login jika form disubmit
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Mencegah SQL Injection dasar
-    $username = mysqli_real_escape_string($conn, $_POST['username']);
-// ... (dan seterusnya ke bawah tetep sama persis) ...
+if (!$conn) {
+    die("Koneksi gagal: " . mysqli_connect_error());
+}
+?>
