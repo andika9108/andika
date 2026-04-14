@@ -9,8 +9,7 @@ if (!isset($_SESSION['username'])) {
 $username = $_SESSION['username'];
 
 // 2. KONEKSI DATABASE
-$conn = mysqli_connect("localhost", "root", "", "umamusume_db");
-if (!$conn) { die("Koneksi gagal!"); }
+require 'config.php'; 
 
 // 3. LOGIKA CRUD (TAMBAH, EDIT, HAPUS)
 if (isset($_POST['tambah_barang']) || isset($_POST['edit_barang'])) {
