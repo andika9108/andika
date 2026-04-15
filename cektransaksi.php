@@ -45,7 +45,6 @@ function sensorTeks($teks, $jumlah_bintang = 3) {
 <body>
 
     <div class="container">
-        <!-- Tombol Kembali -->
         <div style="text-align: left;">
             <a href="dashboard.php" class="back-btn"><i class="fas fa-arrow-left"></i> Kembali ke Toko</a>
         </div>
@@ -76,7 +75,10 @@ function sensorTeks($teks, $jumlah_bintang = 3) {
                             while($row = mysqli_fetch_assoc($query)): 
                         ?>
                         <tr>
-                            <td style="color:var(--text-muted); font-size:12px;"><?php echo date('H:i', strtotime($row['tanggal'])); ?> WIB</td>
+                            <td style="color:var(--text-muted); font-size:12px;">
+                                <span style="color:#e2e8f0; font-weight:600;"><?php echo date('d M Y', strtotime($row['tanggal'])); ?></span><br>
+                                <?php echo date('H:i', strtotime($row['tanggal'])); ?> WIB
+                            </td>
                             <td>
                                 <div style="font-weight:700; color:#fff;"><?php echo htmlspecialchars($row['nama_produk']); ?></div>
                                 <div style="font-size:11px; color:var(--primary);">Rp <?php echo number_format($row['total_harga'], 0, ',', '.'); ?></div>
