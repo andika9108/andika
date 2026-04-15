@@ -10,51 +10,29 @@ $username = $_SESSION['username'];
 
 // 1. KONEKSI DATABASE
 require 'config.php'; 
+// (Atau kalau lo tadinya pake mysqli_connect langsung, ganti baris di atas jadi:
+// $conn = mysqli_connect("localhost", "root", "", "umamusume_db"); 
+// pastikan sesuaikan sama settingan lo ya)
 
 // ================================================================
-// 2. MAGIC TRICK: AUTO-INSERT SALDO E-WALLET KE DATABASE JIKA KOSONG
+// MAGIC TRICK: AUTO-TAMBAH KOLOM METODE BAYAR DI DATABASE 
+// (Biar gak eror pas nyimpen GoPay/DANA)
 // ================================================================
-$cek_ewallet = mysqli_query($conn, "SELECT COUNT(*) as total FROM products WHERE nama_produk LIKE '%DANA%' OR nama_produk LIKE '%GoPay%'");
-$data_ew = mysqli_fetch_assoc($cek_ewallet);
-
-if ($data_ew['total'] == 0) {
-    // ================================================================
-// 2. MAGIC TRICK: AUTO-INSERT SALDO E-WALLET KE DATABASE JIKA KOSONG
-// ================================================================
-$cek_ewallet = mysqli_query($conn, "SELECT COUNT(*) as total FROM products WHERE nama_produk LIKE '%DANA%' OR nama_produk LIKE '%GoPay%'");
-$data_ew = mysqli_fetch_assoc($cek_ewallet);
-
-if ($data_ew['total'] == 0) {
-    // Daftar E-Wallet dan Nominal Saldo
-    $ewallets = ['DANA', 'GoPay', 'OVO', 'ShopeePay'];
-    $nominals = [5.000, 10.000, 15.000, 25.000, 45.000, 50.000, 75.000, 100.000];
-
-    foreach ($ewallets as $ew) {
-        foreach ($nominals as $nom) {
-            // Konversi angka jadi huruf K (contoh: 5000 dibagi 1000 = 5K)
-            $label_k = ($nom / 1000) . "K"; 
-            
-            $nama = "Saldo $ew $label_k";
-            $harga = $nom + 1000; // Harga database tetep angka beneran + Fee 1000
-            
-            mysqli_query($conn, "INSERT INTO products (nama_produk, harga, stok) VALUES ('$nama', '$harga', 999)");
-        }
-    }
-    // Refresh halaman biar nominalnya langsung nongol
-    header("Location: dashboard.php");
-    exit();
-}
-// ================================================================
+$check_col = mysqli_query($conn, "SHOW COLUMNS FROM transactions LIKE 'metode_bayar'");
+if(mysqli_num_rows($check_col) == 0) {
+    mysqli_query($conn, "ALTER TABLE transactions ADD metode_bayar VARCHAR(50) DEFAULT 'QRIS'");
 }
 // ================================================================
 
-// 3. LOGIKA PROSES BELI
+// 2. LOGIKA PROSES BELI (INI YANG BIKIN BISA NYIMPEN GOPAY)
 if (isset($_POST['beli_barang'])) {
     $id_produk = (int)$_POST['id_produk'];
     $jumlah_beli = (int)$_POST['jumlah'];
     $cust_name = !empty($_POST['cust_name']) ? mysqli_real_escape_string($conn, $_POST['cust_name']) : "Guest";
     $cust_wa = !empty($_POST['cust_wa']) ? mysqli_real_escape_string($conn, $_POST['cust_wa']) : "-";
-    $metode_bayar = isset($_POST['metode_bayar']) ? $_POST['metode_bayar'] : "QRIS";
+    
+    // TANGKEP METODE BAYAR DARI FORM
+    $metode_bayar = isset($_POST['metode_bayar']) ? mysqli_real_escape_string($conn, $_POST['metode_bayar']) : "QRIS";
 
     $cek_produk = mysqli_query($conn, "SELECT * FROM products WHERE id='$id_produk'");
     if ($data_produk = mysqli_fetch_assoc($cek_produk)) {
@@ -63,9 +41,12 @@ if (isset($_POST['beli_barang'])) {
             $sisa_stok = $data_produk['stok'] - $jumlah_beli;
             $nama_produk = $data_produk['nama_produk'];
 
+            // Kurangi Stok
             mysqli_query($conn, "UPDATE products SET stok='$sisa_stok' WHERE id='$id_produk'");
-            mysqli_query($conn, "INSERT INTO transactions (pembeli, customer_name, customer_wa, nama_produk, jumlah, total_harga) 
-                         VALUES ('$username', '$cust_name', '$cust_wa', '$nama_produk', '$jumlah_beli', '$total_harga')");
+            
+            // SIMPAN KE TRANSAKSI BESERTA METODE BAYARNYA
+            mysqli_query($conn, "INSERT INTO transactions (pembeli, customer_name, customer_wa, nama_produk, jumlah, total_harga, metode_bayar) 
+                         VALUES ('$username', '$cust_name', '$cust_wa', '$nama_produk', '$jumlah_beli', '$total_harga', '$metode_bayar')");
 
             $_SESSION['pesan'] = "sukses";
         } else {
@@ -80,9 +61,9 @@ $produk_query = mysqli_query($conn, "SELECT * FROM products ORDER BY harga ASC")
 
 // ARRAY DATA GAME
 $game_info = [
-    'genshin'  => ['nama' => 'Genshin Impact', 'img' => 'https://tse4.mm.bing.net/th/id/OIP.M4zO4XAX1j5De5qK5rUF1gHaHa?pid=Api&h=220&P=0', 'dev' => 'HoYoverse'],
+    'genshin'  => ['nama' => 'Genshin Impact', 'img' => 'https://play-lh.googleusercontent.com/iP2i_f23Z6I-5hoL2okPS4SxOGhj0q61Iyb0Y1m4xdTsbnaCmrjs7xKRnL6o5R4h-Yg', 'dev' => 'HoYoverse'],
     'hsr'      => ['nama' => 'Honkai Star Rail', 'img' => 'https://stardb.gg/images/icons/star-rail-icon.webp', 'dev' => 'HoYoverse'],
-    'uma'      => ['nama' => 'Uma Musume', 'img' => 'https://tse2.mm.bing.net/th/id/OIP.M4fsR_34nzK9w5KOWzn8QAHaHa?pid=Api&h=220&P=0', 'dev' => 'Cygames'],
+    'uma'      => ['nama' => 'Uma Musume', 'img' => 'https://img.game8.co/4219101/640292a57407d681aa0f3e342f7ac968.png/show', 'dev' => 'Cygames'],
     'mlbb'     => ['nama' => 'Mobile Legends', 'img' => 'https://www.gamersoft.net/wp-content/uploads/2023/05/mobile-legends-bang-bang.webp', 'dev' => 'Moonton'],
     'hok'      => ['nama' => 'Honor of Kings', 'img' => 'https://tse2.mm.bing.net/th/id/OIP.nM0u8c8-lJt5NYR-VbUIoAHaHa?pid=Api&P=0&h=220', 'dev' => 'Level Infinite'],
     'ff'       => ['nama' => 'Free Fire', 'img' => 'https://tse2.mm.bing.net/th/id/OIP.gDIuTjSv6lO19IS5SdhTAAHaHa?pid=Api&P=0&h=220', 'dev' => 'Garena'],
@@ -103,7 +84,6 @@ while($r = mysqli_fetch_assoc($produk_query)) {
     $n = strtolower($r['nama_produk']);
     $cat = 'other';
     
-    // Filter Kategori Game
     if(strpos($n, 'genshin') !== false) $cat = 'genshin';
     elseif(strpos($n, 'honkai') !== false || strpos($n, 'hsr') !== false || strpos($n, 'star rail') !== false) $cat = 'hsr';
     elseif(strpos($n, 'uma') !== false) $cat = 'uma';
@@ -112,8 +92,6 @@ while($r = mysqli_fetch_assoc($produk_query)) {
     elseif(strpos($n, 'free fire') !== false || strpos($n, 'ff') !== false) $cat = 'ff';
     elseif(strpos($n, 'pubg') !== false) $cat = 'pubg';
     elseif(strpos($n, 'valorant') !== false || strpos($n, 'val') !== false) $cat = 'val';
-    
-    // Filter Kategori E-Wallet Baru
     elseif(strpos($n, 'dana') !== false) $cat = 'dana';
     elseif(strpos($n, 'gopay') !== false || strpos($n, 'go-pay') !== false) $cat = 'gopay';
     elseif(strpos($n, 'shopeepay') !== false || strpos($n, 'spay') !== false) $cat = 'shopeepay';
@@ -122,7 +100,6 @@ while($r = mysqli_fetch_assoc($produk_query)) {
     $grouped_products[$cat][] = $r;
 }
 
-// Gabungin array Game & E-Wallet buat dilooping form nominal
 $all_categories = array_merge($game_info, $ewallet_info);
 ?>
 
